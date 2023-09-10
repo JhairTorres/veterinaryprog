@@ -1,5 +1,4 @@
 package com.vet.veterinaryprog.service;
-
 import com.vet.veterinaryprog.exceptions.VeterinaryException;
 import com.vet.veterinaryprog.model.City;
 import com.vet.veterinaryprog.model.Vaccine;
@@ -8,7 +7,9 @@ import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Service
@@ -96,7 +97,7 @@ public class VetService {
             this.vets.add(vets);
 
         }
-        return "Ciudad adicionada correctamente";
+        return "Veterinario adicionado correctamente";
     }
 
     private boolean verifyVetExist(Vet vets){
@@ -112,10 +113,78 @@ public class VetService {
         for(Vet vetAct : this.vets){
             if(vetAct.getCode().equals(code)){
                 vetAct.setName(vets.getName());
+                vetAct.setAge(vets.getAge());
                 return "Ciudad actualizada correctamente";
             }
         }
         throw new VeterinaryException("El código ingresado no existe");
 
     }
+    public Map<String, Integer> countVetsByAgeRange() {
+        Map<String, Integer> ageRangeCounts = new HashMap<>();
+
+        int vet1to10 = 0;
+        int vet11to20 = 0;
+        int vet21to30 = 0;
+        int vet31AndAbove = 0;
+
+        for (Vet vet : vets) {
+            int age = Integer.parseInt(String.valueOf(vet.getAge()));
+            if (age >= 1 && age <= 10) {
+                vet1to10++;
+            } else if (age >= 11 && age <= 20) {
+                vet11to20++;
+            } else if (age >= 21 && age <= 30) {
+                vet21to30++;
+            } else {
+                vet31AndAbove++;
+            }
+        }
+
+        ageRangeCounts.put("1-10", vet1to10);
+        ageRangeCounts.put("11-20", vet11to20);
+        ageRangeCounts.put("21-30", vet21to30);
+        ageRangeCounts.put("31+", vet31AndAbove);
+
+        return ageRangeCounts;
+    }
+    public List<Vet> getInterleavedVetList(String message) {
+        List<Vet> pairVets = new ArrayList<>();
+        List<Vet> impairVets = new ArrayList<>();
+        List<Vet> finalVets = new ArrayList<>();
+
+        for (Vet vet : this.vets) {
+            if (vet.getAge() % 2 == 0) {
+                pairVets.add(vet);
+            } else {
+                impairVets.add(vet);
+            }
+        }
+
+        while (!pairVets.isEmpty() || !impairVets.isEmpty()) {
+            if ("pair".equalsIgnoreCase(message)) {
+                if (!pairVets.isEmpty()) {
+                    finalVets.add(pairVets.get(0));
+                    pairVets.remove(0);
+                }
+                if (!impairVets.isEmpty()) {
+                    finalVets.add(impairVets.get(0));
+                    impairVets.remove(0);
+                }
+            }
+            if ("impair".equalsIgnoreCase(message)) {
+                if (!impairVets.isEmpty()) {
+                    finalVets.add(impairVets.get(0));
+                    impairVets.remove(0);
+                }
+                if (!pairVets.isEmpty()) {
+                    finalVets.add(pairVets.get(0));
+                    pairVets.remove(0);
+                }
+            }
+        }
+
+        return finalVets;
+    }
+
 }

@@ -8,5 +8,5 @@ import lombok.Data;
 public class Vet {
     private String code;
     private String name;
-    private byte age;
+    private Byte age;
 }

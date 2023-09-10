@@ -1,5 +1,4 @@
 package com.vet.veterinaryprog.controller;
-
 import com.vet.veterinaryprog.controller.dto.ResponseDTO;
 import com.vet.veterinaryprog.exceptions.VeterinaryException;
 import com.vet.veterinaryprog.model.City;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path="vet")
@@ -174,4 +174,30 @@ public class VetController {
                     HttpStatus.OK);
         }
     }
+    @GetMapping(path = "/age_range_count")
+    public ResponseEntity<ResponseDTO> getVetsCountByAgeRange() {
+        Map<String, Integer> ageRangeCounts = veterinaryService.countVetsByAgeRange();
+        return new ResponseEntity<>(
+                new ResponseDTO(HttpStatus.OK.value(), ageRangeCounts, null),
+                HttpStatus.OK
+        );
+    }
+    @GetMapping(path = "/interleaved/{message}")
+    public ResponseEntity<ResponseDTO> getInterleavedVetList(@PathVariable String message) {
+        List<Vet> interleavedVets = veterinaryService.getInterleavedVetList(message);
+
+        if (interleavedVets.isEmpty()) {
+            List<String> errors = new ArrayList<>();
+            errors.add("No veterinarians found.");
+            return new ResponseEntity<>(
+                    new ResponseDTO(HttpStatus.NOT_FOUND.value(), null, errors),
+                    HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(
+                new ResponseDTO(HttpStatus.OK.value(), interleavedVets, null),
+                HttpStatus.OK
+        );
+    }
+
 }
